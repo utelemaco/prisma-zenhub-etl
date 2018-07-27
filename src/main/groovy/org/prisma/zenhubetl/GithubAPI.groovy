@@ -1,20 +1,24 @@
 package org.prisma.zenhubetl
 
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.web.client.RestTemplate
+
 class GithubAPI {
 	
+	private static final String githubapi = 'https://api.github.com/'
+	
 	public GithubEndpoints getEndpoints() {
+		def url = githubapi
+		RestTemplate restTemplate = new RestTemplate()
+		def request = new HttpEntity<String>()
+		def response = restTemplate.exchange(url, HttpMethod.GET, request, GithubEndpoints.class)
 		
-		
-//		def headers = setHeaders(projectRedmine.redmineConfiguration)
-//		def url = urlProject(projectRedmine.redmineConfiguration.urlBase, projectRedmine.redmineProjectId)
-//		RestTemplate redmineRest = buildRestTemplate(projectRedmine.redmineConfiguration)
-//		def request = new HttpEntity<String>(headers)
-//		def response = redmineRest.exchange(url, HttpMethod.GET, request, RedmineProjectResponse.class)
-//		
-//		if (response.statusCode != HttpStatus.OK) {
-//			throw new Exception("Couldn't get project ${projectRedmine.redmineProjectId} in Redmine")
-//		}
-//		return response.body.project
+		if (response.statusCode != HttpStatus.OK) {
+			throw new Exception("Error accessing github api.")
+		}
+		return response.body
 	}
 	
 //	HttpHeaders setHeaders(RedmineConfiguration redmineConfiguration) {

@@ -1,11 +1,11 @@
 package org.prisma.zenhubetl
 
-import org.prisma.domain.projectInstance.ProjectInstance
+import org.prisma.kip.domain.projectInstance.Project
 
 class Zenhub2ProjectInstance {
 	
-	public ProjectInstance loadFromZenhub(String repositoryName) {
-		ProjectInstance project = new ProjectInstance()
+	public Project loadFromZenhub(String repositoryName) {
+		Project project = new Project()
 		return project
 	}
 

@@ -2,38 +2,36 @@ package org.prisma.zenhubetl
 
 class GithubEndpoints {
 	
-	def endpoints = [:]
-	
-//	current_user_url
-//	current_user_authorizations_html_url
-//	authorizations_url
-//	code_search_url
-//	commit_search_url
-//	emails_url
-//	emojis_url
-//	events_url
-//	feeds_url
-//	followers_url
-//	following_url
-//	gists_url
-//	hub_url
-//	issue_search_url
-//	issues_url
-//	keys_url
-//	notifications_url
-//	organization_repositories_url
-//	organization_url
-//	public_gists_url
-//	rate_limit_url
-//	repository_url
-//	repository_search_url
-//	current_user_repositories_url
-//	starred_url
-//	starred_gists_url
-//	team_url
-//	user_url
-//	user_organizations_url
-//	user_repositories_url
-//	user_search_url
+	def current_user_url
+	def current_user_authorizations_html_url
+	def authorizations_url
+	def code_search_url
+	def commit_search_url
+	def emails_url
+	def emojis_url
+	def events_url
+	def feeds_url
+	def followers_url
+	def following_url
+	def gists_url
+	def hub_url
+	def issue_search_url
+	def issues_url
+	def keys_url
+	def notifications_url
+	def organization_repositories_url
+	def organization_url
+	def public_gists_url
+	def rate_limit_url
+	def repository_url
+	def repository_search_url
+	def current_user_repositories_url
+	def starred_url
+	def starred_gists_url
+	def team_url
+	def user_url
+	def user_organizations_url
+	def user_repositories_url
+	def user_search_url
 
 }
