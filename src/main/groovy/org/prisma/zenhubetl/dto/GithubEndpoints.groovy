@@ -1,5 +1,8 @@
-package org.prisma.zenhubetl
+package org.prisma.zenhubetl.dto
 
+import groovy.transform.ToString
+
+@ToString
 class GithubEndpoints {
 	
 	def current_user_url

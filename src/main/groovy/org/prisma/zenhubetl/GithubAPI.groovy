@@ -1,5 +1,6 @@
 package org.prisma.zenhubetl
 
+import org.prisma.zenhubetl.dto.*
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -12,8 +13,29 @@ class GithubAPI {
 	public GithubEndpoints getEndpoints() {
 		def url = githubapi
 		RestTemplate restTemplate = new RestTemplate()
-		def request = new HttpEntity<String>()
-		def response = restTemplate.exchange(url, HttpMethod.GET, request, GithubEndpoints.class)
+		def response = restTemplate.getForEntity(url, GithubEndpoints.class)
+		
+		if (response.statusCode != HttpStatus.OK) {
+			throw new Exception("Error accessing github api.")
+		}
+		return response.body
+	}
+	
+	public List<GithubMilestone> getMilestones(String owner, String repository) {
+		def url = "${githubapi}/repos/${owner}/${repository}/milestones"
+		RestTemplate restTemplate = new RestTemplate()
+		def response = restTemplate.getForEntity(url, GithubMilestone[].class)
+		
+		if (response.statusCode != HttpStatus.OK) {
+			throw new Exception("Error accessing github api.")
+		}
+		return response.body
+	}
+	
+	public List<GithubIssue> getIssues(String owner, String repository) {
+		def url = "${githubapi}/repos/${owner}/${repository}/issues"
+		RestTemplate restTemplate = new RestTemplate()
+		def response = restTemplate.getForEntity(url, GithubIssue[].class)
 		
 		if (response.statusCode != HttpStatus.OK) {
 			throw new Exception("Error accessing github api.")
