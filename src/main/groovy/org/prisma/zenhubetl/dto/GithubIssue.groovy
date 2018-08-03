@@ -5,18 +5,20 @@ import groovy.transform.ToString
 @ToString
 class GithubIssue {
 	def id
-	def number
-	def title
+	String number
+	String title
 	List<GithubLabel> labels
-	def state
+	String state
 	def locked
 	def assignee
 	def assignees
 	GithubMilestone milestone
-	def comments
+	Integer comments
+	List<GithubComment> listOfComments = []
 	def created_at
 	def updated_at
 	def closed_at
 	def author_association
 	def body
+	
 }

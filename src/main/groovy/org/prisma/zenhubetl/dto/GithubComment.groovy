@@ -3,8 +3,8 @@ package org.prisma.zenhubetl.dto
 import groovy.transform.ToString
 
 @ToString
-class GithubLabel {
+class GithubComment {
 	def id
-	String name
-	String color
+	String body
+	def created_at
 }
