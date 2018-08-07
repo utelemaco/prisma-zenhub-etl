@@ -1,6 +1,7 @@
 package org.prisma.zenhubetl.mapper
 
 import org.prisma.kip.domain.projectInstance.Iteration
+import org.prisma.kip.domain.projectInstance.ProcessInstance
 import org.prisma.kip.domain.projectInstance.Task
 import org.prisma.kip.domain.util.Effort
 import org.prisma.kip.domain.util.Priority
@@ -27,6 +28,14 @@ class GithubIssueMapper {
 		task.effort = loadIssueEffort(zenhubIssue)
 		
 		return task
+	}
+	
+	ProcessInstance githubIssueToProcessInstance(GithubIssue githubIssue, ZenhubIssue zenhubIssue) {
+		ProcessInstance processInstance = new ProcessInstance()
+		processInstance.id = githubIssue.id
+		processInstance.businessKey = githubIssue.number
+		processInstance.name = githubIssue.title
+		return processInstance
 	}
 	
 	Priority loadIssuePrioriry(GithubIssue issue) {

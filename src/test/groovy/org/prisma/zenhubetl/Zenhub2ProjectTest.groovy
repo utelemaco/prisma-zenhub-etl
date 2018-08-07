@@ -11,9 +11,17 @@ class Zenhub2ProjectTest {
 	
 	@Test
 	public void loadFromZenhub() {
-		Zenhub2ProjectInstance service = new Zenhub2ProjectInstance()
-		Project project = service.loadFromZenhub(githubOwner, githubRepoName, zenhubRepoId)
+		Zenhub2Project service = new Zenhub2Project(githubOwner, githubRepoName, zenhubRepoId)
+		Project project = service.loadFromZenhub()
 		assert project
+		
+		assert project.processInstances
+		assert project.processInstances.size() == 2
+		
+		assert project.processInstances[0].tasks
+		
+		assert project.tasks
+		assert project.tasks.size() == 13
 		
 		assert project.iterations
 		assert project.iterations.size() == 2
@@ -29,9 +37,23 @@ class Zenhub2ProjectTest {
 		assert project.documents
 		
 		
-		project.tasks.each {
-			println "${it}"
+		println "\n\n####################################\nIteration Perspective:"
+		project.iterations.eachWithIndex { iteration, index ->
+			println "     Iteration[${index+1}: ${iteration.name}]"
+			println "       Tasks: "
+			iteration.tasks.each { println "          ${it.businessKey} - ${it.name}"}
 		}
+		
+		println "\n\n####################################\nProcess Instances Perspective:"
+		project.processInstances.eachWithIndex { processInstance, index ->
+			println "     Process Instance[${index+1}: ${processInstance.name}]"
+			println "       Tasks: "
+			processInstance.tasks.each { println "          ${it.businessKey} - ${it.name}"}
+		}
+					
+		println "\n\n####################################\nProject Perspective:"
+		project.tasks.each { println "          ${it.businessKey} - ${it.name}"}
+		
 		
 		
 		println '\n\nAbout Documents...'
@@ -50,6 +72,26 @@ class Zenhub2ProjectTest {
 					println "      accessing doc: ${it.document.businessKey}"
 				}
 			}
+		}
+		
+		println '\n\n\nAbout dependencies....'
+		project.tasks.each { task ->
+			if (task.blockingTasks) {
+				task.blockingTasks.each { blockTask ->
+				    println "\n -     #${task.businessKey} '${task.name}' is blocking #${blockTask.task.businessKey} '${blockTask.task.name}'"
+				}
+			}
+			
+			if (task.blockedByTasks) {
+				task.blockedByTasks.each { blockTask ->
+					println "\n -     #${task.businessKey} '${task.name}' is blocked by #${blockTask.task.businessKey} '${blockTask.task.name}'"
+				}
+			}
+		}
+		
+		
+		project.taskDependencies.each { taskDependency ->
+			println "\n @     #${taskDependency.blockingTask.businessKey} '${taskDependency.blockingTask.name}' is blocking #${taskDependency.blockedTask.businessKey} '${taskDependency.blockedTask.name}'"
 		}
 		
 	}

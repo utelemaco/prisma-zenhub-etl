@@ -1,23 +1,45 @@
 package org.prisma.zenhubetl
 
 import org.prisma.zenhubetl.dto.ZenhubBoard
+import org.prisma.zenhubetl.dto.ZenhubDependencies
+import org.prisma.zenhubetl.dto.ZenhubEpic
 import org.prisma.zenhubetl.dto.ZenhubIssue
 
 class ZenhubAPI extends AbstractAPI {
 	
+	private String accessToken
 	
-	private static final String zenhubapi = 'https://api.zenhub.io/'
-	private static final String accessToken = '?access_token=5e9b1c914d2959a5feddd3f3335671d68570f8883bfa5fca774c78b3dc711e9321f3ab5b20d6c45e'
+	public ZenhubAPI(String accessToken) {
+		this.accessToken = accessToken;
+	}
+
+	private appendAccessToken() {
+		if (accessToken) {
+			return "?access_token=${accessToken}"
+		}
+		''
+	}
+
+	private static final String zenhubapi = 'https://api.zenhub.io'
 
 	public ZenhubIssue getZenhubIssue(String repoId, def issueNumber) {
-		def url = "${zenhubapi}/p1/repositories/${repoId}/issues/${issueNumber}${accessToken}"
-		ZenhubIssue zenhubIssue = callExternalAPI(url, ZenhubIssue.class)
-		zenhubIssue.number = issueNumber
-		zenhubIssue
+		def url = "${zenhubapi}/p1/repositories/${repoId}/issues/${issueNumber}${appendAccessToken()}"
+		callExternalAPI(url, ZenhubIssue.class)
 	}
 	
 	public ZenhubBoard getZenhubBoard(String repoId) {
-		def url = "${zenhubapi}/p1/repositories/${repoId}/board${accessToken}"
+		def url = "${zenhubapi}/p1/repositories/${repoId}/board${appendAccessToken()}"
 		callExternalAPI(url, ZenhubBoard.class)
+	}
+	
+	public ZenhubEpic getZenhubEpic(String repoId, def issueNumber) {
+		def url = "${zenhubapi}/p1/repositories/${repoId}/epics/${issueNumber}${appendAccessToken()}"
+		callExternalAPI(url, ZenhubEpic.class)
+	}
+	
+	
+	public ZenhubDependencies getZenhubDependencies(String repoId) {
+		def url = "${zenhubapi}/p1/repositories/${repoId}/dependencies${appendAccessToken()}"
+		callExternalAPI(url, ZenhubDependencies.class)
 	}
 }

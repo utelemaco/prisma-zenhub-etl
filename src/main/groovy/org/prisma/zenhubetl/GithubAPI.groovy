@@ -7,25 +7,39 @@ import org.springframework.web.client.RestTemplate
 class GithubAPI extends AbstractAPI {
 	
 	private static final String githubapi = 'https://api.github.com'
-	private static final String accessToken = '?access_token=f6579c0741820fc120f8d48992e0dd094e957d80'
+	private String accessToken
 	
+	public GithubAPI() {
+	}
+	
+	public GithubAPI(String accessToken) {
+		this.accessToken = accessToken;
+	}
+	
+	private String appendAccessToken() {
+		if (accessToken) {
+			return "?access_token=${accessToken}"
+		}
+		return ''
+	}
+
 	public GithubEndpoints getEndpoints() {
-		def url = "${githubapi}${accessToken}"
+		def url = "${githubapi}${appendAccessToken()}"
 		callExternalAPI(url, GithubEndpoints.class)
 	}
 	
 	public List<GithubMilestone> getMilestones(String owner, String repository) {
-		def url = "${githubapi}/repos/${owner}/${repository}/milestones${accessToken}"
+		def url = "${githubapi}/repos/${owner}/${repository}/milestones${appendAccessToken()}"
 		callExternalAPI(url, GithubMilestone[].class)
 	}
 	
 	public List<GithubIssue> getIssues(String owner, String repository) {
-		def url = "${githubapi}/repos/${owner}/${repository}/issues${accessToken}"
+		def url = "${githubapi}/repos/${owner}/${repository}/issues${appendAccessToken()}"
 		callExternalAPI(url, GithubIssue[].class)
 	}
 	
 	public List<GithubComment> getComments(String owner, String repository, def issueId) {
-		def url = "${githubapi}/repos/${owner}/${repository}/issues/${issueId}/comments${accessToken}"
+		def url = "${githubapi}/repos/${owner}/${repository}/issues/${issueId}/comments${appendAccessToken()}"
 		callExternalAPI(url, GithubComment[].class)
 	}
 	
@@ -41,13 +55,4 @@ class GithubAPI extends AbstractAPI {
 		return issues;
 	}
 	
-	
-//	HttpHeaders setHeaders(RedmineConfiguration redmineConfiguration) {
-//		def headers = new HttpHeaders()
-//		headers.set("X-Redmine-API-Key", redmineConfiguration.accessKey)
-//		headers.setContentType(MediaType.APPLICATION_JSON)
-//		
-//		return headers
-//	}
-
 }

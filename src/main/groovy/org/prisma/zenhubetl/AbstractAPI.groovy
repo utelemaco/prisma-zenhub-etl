@@ -12,7 +12,7 @@ class AbstractAPI {
 		def response = restTemplate.getForEntity(url, responseClass)
 		
 		if (response.statusCode != HttpStatus.OK) {
-			throw new Exception("Error accessing github api.")
+			throw new Exception("Error accessing external api.")
 		}
 		return response.body
 	}
