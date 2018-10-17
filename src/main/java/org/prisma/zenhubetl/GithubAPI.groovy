@@ -34,7 +34,7 @@ class GithubAPI extends AbstractAPI {
 	}
 	
 	public List<GithubIssue> getIssues(String owner, String repository) {
-		def url = "${githubapi}/repos/${owner}/${repository}/issues${appendAccessToken()}"
+		def url = "${githubapi}/repos/${owner}/${repository}/issues?state=all${appendAccessToken()}"
 		callExternalAPI(url, GithubIssue[].class)
 	}
 	
