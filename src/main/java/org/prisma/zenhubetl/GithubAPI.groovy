@@ -34,8 +34,21 @@ class GithubAPI extends AbstractAPI {
 	}
 	
 	public List<GithubIssue> getIssues(String owner, String repository) {
-		def url = "${githubapi}/repos/${owner}/${repository}/issues?state=all&${appendAccessToken()}"
-		callExternalAPI(url, GithubIssue[].class)
+		List<GithubIssue> allIssues = []
+		def stop = false
+		def page = 1
+		while (!stop) {
+			def url = "${githubapi}/repos/${owner}/${repository}/issues?page=${page}&state=all&${appendAccessToken()}"
+			def issues = callExternalAPI(url, GithubIssue[].class)
+			allIssues += issues.toList()
+			if (!issues) {
+				stop = true
+			}
+			page++
+		}
+		
+		return allIssues
+		
 	}
 	
 	public List<GithubComment> getComments(String owner, String repository, def issueId) {
@@ -48,7 +61,7 @@ class GithubAPI extends AbstractAPI {
 		
 		issues.each { issue ->
 			if (issue.comments) {
-				issue.listOfComments << getComments(owner, repository, issue.number)
+				issue.listOfComments += getComments(owner, repository, issue.number)
 			}
 		}
 		
