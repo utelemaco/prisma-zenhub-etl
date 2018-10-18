@@ -112,6 +112,11 @@ class Zenhub2Project {
 	def loadTasks(Project project, List<GithubIssue> githubIssues, List<ZenhubIssue> zenhubIssues) {
 		githubIssues.each { githubIssue ->
 			ZenhubIssue zenhubIssue = zenhubIssues.find { it.issue_number == githubIssue.number }
+			
+			if (!zenhubIssue) {
+				zenhubIssue = zenhubAPI.getZenhubIssue(zenhubRepoId, githubIssue.number)
+			}
+			
 			Task task = issueMapper.githubIssueToTask(githubIssue, zenhubIssue)
 			project.tasks << task
 			
