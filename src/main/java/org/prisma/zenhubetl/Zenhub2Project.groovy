@@ -46,6 +46,20 @@ class Zenhub2Project {
 		}
 		this.zenhubAPI = new ZenhubAPI(zenhubAccessToken)
 	}
+	
+	
+	public Zenhub2Project(String githubOwner, String githubRepoName, String githubAccessToken, String zenhubRepoId, String zenhubAccessToken) {
+		super();
+		
+		this.githubOwner = githubOwner;
+		this.githubRepoName = githubRepoName;
+		
+		this.githubAPI = new GithubAPI(githubAccessToken)
+		
+		this.zenhubRepoId = zenhubRepoId;
+		
+		this.zenhubAPI = new ZenhubAPI(zenhubAccessToken)
+	}
 
 	public Project loadFromZenhub() {
 		Project project = new Project()
