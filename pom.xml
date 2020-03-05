@@ -44,9 +44,9 @@
 		
     	<dependency>
     		<groupId>com.github.utelemaco</groupId>
-    		<artifactId>prisma-domain</artifactId>
-    		<version>c452688012b6f1a6c5cf0f70abb148ca72848e16</version>
-		</dependency>
+    		<artifactId>prisma-kip-domain</artifactId>
+    		<version>e821b160c7201a94b11794fd1a934e125b86c30b</version>
+	</dependency>
     
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
