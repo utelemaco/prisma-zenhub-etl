@@ -13,6 +13,7 @@ import org.prisma.zenhubetl.dto.GithubComment
 import org.prisma.zenhubetl.dto.GithubIssue
 import org.prisma.zenhubetl.dto.GithubMilestone
 import org.prisma.zenhubetl.dto.ZenhubBoard
+import org.prisma.zenhubetl.dto.ZenhubConfig
 import org.prisma.zenhubetl.dto.ZenhubDependencies
 import org.prisma.zenhubetl.dto.ZenhubEpic
 import org.prisma.zenhubetl.dto.ZenhubIssue
@@ -21,50 +22,24 @@ import org.prisma.zenhubetl.mapper.GithubIssueMapper
 class Zenhub2Project {
 	
 	GithubAPI githubAPI = new GithubAPI()
-	GithubIssueMapper issueMapper = new GithubIssueMapper()
+	GithubIssueMapper githubMapper = new GithubIssueMapper()
 	
 	ZenhubAPI zenhubAPI
+
+	ZenhubConfig zenhubConfig
 	
-	String githubOwner
-	String githubRepoName
-	String zenhubRepoId
-	
-	public Zenhub2Project(String githubOwner, String githubRepoName, String zenhubRepoId) {
+	public Zenhub2Project(ZenhubConfig zenhubConfig) {
 		super();
-		
-		this.githubOwner = githubOwner;
-		this.githubRepoName = githubRepoName;
-		
-		String githubAccessToken = System.properties['githubAccessToken']
-		this.githubAPI = new GithubAPI(githubAccessToken)
-		
-		this.zenhubRepoId = zenhubRepoId;
-		
-		String zenhubAccessToken = System.properties['zenhubAccessToken']
-		if (!zenhubAccessToken) {
-			throw new Exception('System.property zenhubAccessToken not provided!')
-		}
-		this.zenhubAPI = new ZenhubAPI(zenhubAccessToken)
-	}
-	
-	
-	public Zenhub2Project(String githubOwner, String githubRepoName, String githubAccessToken, String zenhubRepoId, String zenhubAccessToken) {
-		super();
-		
-		this.githubOwner = githubOwner;
-		this.githubRepoName = githubRepoName;
-		
-		this.githubAPI = new GithubAPI(githubAccessToken)
-		
-		this.zenhubRepoId = zenhubRepoId;
-		
-		this.zenhubAPI = new ZenhubAPI(zenhubAccessToken)
+		this.zenhubConfig = zenhubConfig;
+		this.githubAPI = new GithubAPI(zenhubConfig.githubAccessToken)
+		this.zenhubAPI = new ZenhubAPI(zenhubConfig.zenhubAccessToken)
 	}
 
 	public Project loadFromZenhub() {
 		Project project = new Project()
 		
-		List<GithubIssue> githubIssues = githubAPI.getIssuesWithComments(githubOwner, githubRepoName)
+		//List<GithubIssue> githubIssues = githubAPI.getIssuesWithComments(githubOwner, githubRepoName)
+		List<GithubIssue> githubIssues = githubAPI.getIssues(zenhubConfig.githubOwner, zenhubConfig.githubRepoName)
 		
 		List<ZenhubIssue> zenhubIssues = loadZenhubIssuesFromGithubIssues(githubIssues)
 		
@@ -84,7 +59,7 @@ class Zenhub2Project {
 	
 	List<ZenhubIssue> loadZenhubIssuesFromGithubIssues(List<GithubIssue> githubIssues) {
 		List<ZenhubIssue> zenhubIssues = []
-		ZenhubBoard zenhubBoard = zenhubAPI.getZenhubBoard(zenhubRepoId)
+		ZenhubBoard zenhubBoard = zenhubAPI.getZenhubBoard(zenhubConfig.zenhubRepoId)
 		zenhubBoard.pipelines.each { pipeline ->
 			pipeline.issues.each { zenhubIssue ->
 				zenhubIssue.pipeline = pipeline
@@ -105,7 +80,7 @@ class Zenhub2Project {
 		}
 		
 		milestones.each {
-			project.iterations << issueMapper.githubMilestoneToIteration(it)
+			project.iterations << githubMapper.githubMilestoneToIteration(it)
 		}
 	}
 	
@@ -114,7 +89,7 @@ class Zenhub2Project {
 		zenhubIssues.eachWithIndex { zenhubIssue, index ->
 			if (zenhubIssue.is_epic) {
 				GithubIssue githubIssue = githubIssues.find { it.number == zenhubIssue.issue_number }
-				project.processInstances << issueMapper.githubIssueToProcessInstance(githubIssue, zenhubIssue)
+				project.processInstances << githubMapper.githubIssueToProcessInstance(githubIssue, zenhubIssue)
 				
 				githubIssues.removeAll { it.number == githubIssue.number}
 			}
@@ -128,10 +103,10 @@ class Zenhub2Project {
 			ZenhubIssue zenhubIssue = zenhubIssues.find { it.issue_number == githubIssue.number }
 			
 			if (!zenhubIssue) {
-				zenhubIssue = zenhubAPI.getZenhubIssue(zenhubRepoId, githubIssue.number)
+				zenhubIssue = zenhubAPI.getZenhubIssue(zenhubConfig.zenhubRepoId, githubIssue.number)
 			}
 			
-			Task task = issueMapper.githubIssueToTask(githubIssue, zenhubIssue)
+			Task task = githubMapper.githubIssueToTask(githubIssue, zenhubIssue, zenhubConfig)
 			project.tasks << task
 			
 			if (githubIssue.milestone) {
@@ -144,11 +119,16 @@ class Zenhub2Project {
 	
 	def linkProcessInstancesAndTasks(Project project) {
 		project.processInstances.each { processInstance ->
-			ZenhubEpic zenhubEpic = zenhubAPI.getZenhubEpic(zenhubRepoId, processInstance.businessKey)
+			ZenhubEpic zenhubEpic = zenhubAPI.getZenhubEpic(zenhubConfig.zenhubRepoId, processInstance.businessKey)
 			zenhubEpic.issues.each { zenhubIssue ->
 				Task task = project.tasks.find { it.businessKey == zenhubIssue.issue_number }
-				processInstance.tasks << task
-				task.processInstance = processInstance
+				if (task) {
+					processInstance.tasks << task
+					task.processInstance = processInstance
+				} else {
+					println "Something weird: Task not found with businessKey: ${ zenhubIssue.issue_number }"
+				}
+
 			}
 		}
 	}
@@ -203,7 +183,7 @@ class Zenhub2Project {
 	}
 	
 	def loadDependencies(Project project) {
-		ZenhubDependencies zenhubDependencies = zenhubAPI.getZenhubDependencies(zenhubRepoId)
+		ZenhubDependencies zenhubDependencies = zenhubAPI.getZenhubDependencies(zenhubConfig.zenhubRepoId)
 		
 		zenhubDependencies.dependencies.each { zenhubDependency ->
 			/**

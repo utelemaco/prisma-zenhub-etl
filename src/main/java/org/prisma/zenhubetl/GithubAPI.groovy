@@ -55,6 +55,11 @@ class GithubAPI extends AbstractAPI {
 		def url = "${githubapi}/repos/${owner}/${repository}/issues/${issueId}/comments?${appendAccessToken()}"
 		callExternalAPI(url, GithubComment[].class)
 	}
+
+	public List<GithubTimeline> getTimeline(String owner, String repository, def issueId) {
+		def url = "${githubapi}/repos/${owner}/${repository}/issues/${issueId}/timeline?${appendAccessToken()}"
+		callExternalAPI(url, GithubTimeline[].class)
+	}
 	
 	public List<GithubIssue> getIssuesWithComments(String owner, String repository) {
 		List<GithubIssue> issues = getIssues(owner, repository)

@@ -5,6 +5,7 @@ import org.junit.Test
 import org.prisma.zenhubetl.dto.GithubEndpoints
 import org.prisma.zenhubetl.dto.GithubIssue
 import org.prisma.zenhubetl.dto.GithubMilestone
+import org.prisma.zenhubetl.dto.GithubTimeline
 
 class GithubAPITest {
 	
@@ -35,7 +36,7 @@ class GithubAPITest {
 	
 	@Test
 	public void getIssues() {
-		List<GithubMilestone> issues = api.getIssues(owner, repository)
+		List<GithubIssue> issues = api.getIssues(owner, repository)
 		assert issues
 	}
 	
@@ -50,6 +51,12 @@ class GithubAPITest {
 				println it
 			}
 		}
+	}
+
+	@Test
+	public void getTimeline() {
+		List<GithubTimeline> timelines = api.getTimeline('mozilla', 'bedrock', '7046')
+		assert timelines
 	}
 
 }

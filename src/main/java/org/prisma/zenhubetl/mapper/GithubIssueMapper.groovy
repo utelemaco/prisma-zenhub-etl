@@ -5,6 +5,7 @@ import org.prisma.kip.domain.projectInstance.ProcessInstance
 import org.prisma.kip.domain.projectInstance.Task
 import org.prisma.kip.domain.util.Effort
 import org.prisma.kip.domain.util.Priority
+import org.prisma.zenhubetl.dto.ZenhubConfig
 import org.prisma.zenhubetl.dto.GithubIssue
 import org.prisma.zenhubetl.dto.GithubLabel
 import org.prisma.zenhubetl.dto.GithubMilestone
@@ -12,9 +13,7 @@ import org.prisma.zenhubetl.dto.ZenhubIssue
 
 class GithubIssueMapper {
 	
-	private static final List<String> priorityValues = ['very low', 'low', 'normal', 'high', 'very high'] 
-	
-	Task githubIssueToTask(GithubIssue githubIssue, ZenhubIssue zenhubIssue) {
+	Task githubIssueToTask(GithubIssue githubIssue, ZenhubIssue zenhubIssue, ZenhubConfig zenhubConfig) {
 		Task task = new Task()
 		
 		task.id = githubIssue.id
@@ -22,9 +21,8 @@ class GithubIssueMapper {
 		task.name = githubIssue.title
 		task.description = githubIssue.body
 		
-		task.priority = loadIssuePrioriry(githubIssue)
-		
-		task.status = loadIssueStatus(zenhubIssue)
+		task.priority = loadIssuePrioriry(githubIssue, zenhubConfig)
+		task.status = loadIssueStatus(zenhubIssue, zenhubConfig)
 		task.effort = loadIssueEffort(zenhubIssue)
 		
 		return task
@@ -38,32 +36,47 @@ class GithubIssueMapper {
 		return processInstance
 	}
 	
-	Priority loadIssuePrioriry(GithubIssue issue) {
-		
-		GithubLabel priorityLabel = issue.labels.find { it.name.toLowerCase().startsWith('priority') }
-		if (!priorityLabel) {
+	Priority loadIssuePrioriry(GithubIssue issue, ZenhubConfig zenhubConfig) {
+
+		// When the parameter 'option' is null or the priority map is empty, do not try to extract priority
+		if (zenhubConfig.prioritiesMap.isEmpty()) {
 			return null
 		}
-		
-		String[] priorityLabelAsArray = priorityLabel.name.split(':')
-		Priority priority = new Priority()
-		
-		/**
-		 * If the Priority Label does not have a 'xxxx:xxxx' format.
-		 */
-		if (priorityLabelAsArray.length < 2) {
-			priority.label = priorityLabelAsArray[0]
-			priority.value = 0
-			return priority
+
+		Priority priority = null
+
+		for (GithubLabel label: issue.labels) {
+			def priorityMapEntry = zenhubConfig.prioritiesMap.find { entry -> entry.key == label.name }
+
+
+			if (!priorityMapEntry) {
+				//entry not found in the map... continue to the next label.
+				continue
+			}
+
+			//If an entry is found or if the current priority has a lower value
+			if (!priority || priority.value < priorityMapEntry.value) {
+				priority = new Priority(label: priorityMapEntry.key, value: Integer.valueOf(priorityMapEntry.value))
+			}
+
 		}
-		
-		priority.label = priorityLabelAsArray[1]
-		priority.value = priorityValues.indexOf(priority.label.toLowerCase())
+
 		return priority
 	}
 	
-	def loadIssueStatus(ZenhubIssue zenhubIssue) {
-		return zenhubIssue.pipeline?.name
+	def loadIssueStatus(ZenhubIssue zenhubIssue, ZenhubConfig zenhubConfig) {
+		if (zenhubConfig.statusMap.isEmpty()) {
+			return null
+		}
+
+		def statusMapEntry = zenhubConfig.statusMap.find { entry -> entry.key == zenhubIssue.pipeline?.name }
+
+		if (!statusMapEntry) {
+			//entry not found in the map... returning null
+			return null
+		}
+
+		return statusMapEntry.value
 	}
 	
 	Effort loadIssueEffort(ZenhubIssue zenhubIssue) {

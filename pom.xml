@@ -8,7 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.prisma</groupId>
-    <artifactId>zenhub-etl</artifactId>
+    <artifactId>prisma-zenhub-etl</artifactId>
     <name>Zenhub Project</name>
     <version>1.0-SNAPSHOT</version>
     
