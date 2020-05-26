@@ -25,6 +25,7 @@ class Zenhub2ProjectTest {
 	def zenhubRepoId = '141082272'
 	List<MapEntry> prioritiesMap = [new MapEntry(key:'Priority:Very High', value: "100"), new MapEntry(key:'Priority:High', value: "80"), new MapEntry(key:'Priority:Normal', value: "50"), new MapEntry(key:'Priority:Low', value: "20")]
 	List<MapEntry> statusMap = [new MapEntry(key:'New Issues', value: "todo"), new MapEntry(key:'Backlog', value: "todo"), new MapEntry(key:'In Progress', value: "doing"), new MapEntry(key:'Review/QA', value: "doing"), new MapEntry(key:'Done', value: "done")]
+	List<MapEntry> processActivitiesMap = [new MapEntry(key:'Activity:Planning', value: 'Iteration Planning'), new MapEntry(key:'Review', value: 'Planning Review')]
 
 //	def githubOwner = 'flutter'
 //	def githubRepoName = 'flutter'
@@ -43,6 +44,7 @@ class Zenhub2ProjectTest {
 		config.zenhubRepoId = zenhubRepoId
 		config.prioritiesMap = prioritiesMap
 		config.statusMap = statusMap
+		config.processActivitiesMap = processActivitiesMap
 
 		config.githubAccessToken = System.properties['githubAccessToken']
 		if (!config.githubAccessToken) {

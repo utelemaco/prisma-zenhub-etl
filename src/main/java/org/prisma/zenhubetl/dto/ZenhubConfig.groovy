@@ -10,6 +10,7 @@ class ZenhubConfig {
 
     List<MapEntry> prioritiesMap = []
     List<MapEntry> statusMap = []
+    List<MapEntry> processActivitiesMap = []
 
 
 }

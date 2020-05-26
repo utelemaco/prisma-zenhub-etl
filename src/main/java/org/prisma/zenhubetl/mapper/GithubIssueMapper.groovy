@@ -1,10 +1,12 @@
 package org.prisma.zenhubetl.mapper
 
+import org.prisma.kip.domain.processDefinition.Activity
 import org.prisma.kip.domain.projectInstance.Iteration
 import org.prisma.kip.domain.projectInstance.ProcessInstance
 import org.prisma.kip.domain.projectInstance.Task
 import org.prisma.kip.domain.util.Effort
 import org.prisma.kip.domain.util.Priority
+import org.prisma.zenhubetl.dto.MapEntry
 import org.prisma.zenhubetl.dto.ZenhubConfig
 import org.prisma.zenhubetl.dto.GithubIssue
 import org.prisma.zenhubetl.dto.GithubLabel
@@ -24,6 +26,7 @@ class GithubIssueMapper {
 		task.priority = loadIssuePrioriry(githubIssue, zenhubConfig)
 		task.status = loadIssueStatus(zenhubIssue, zenhubConfig)
 		task.effort = loadIssueEffort(zenhubIssue)
+		task.implementedActivities = loadIssuesActivities(githubIssue, zenhubConfig)
 		
 		return task
 	}
@@ -77,6 +80,23 @@ class GithubIssueMapper {
 		}
 
 		return statusMapEntry.value
+	}
+
+	List<Activity> loadIssuesActivities(GithubIssue githubIssue, ZenhubConfig zenhubConfig) {
+		if (zenhubConfig.processActivitiesMap.isEmpty() || githubIssue.labels.isEmpty()) {
+			return Collections.emptyList()
+		}
+
+		List<Activity> activities = []
+		githubIssue.labels.each { label ->
+			MapEntry processActivityMapEntry = zenhubConfig.processActivitiesMap.find { label.name == it.key }
+			if (processActivityMapEntry) {
+				activities << new Activity(name: processActivityMapEntry.value)
+			}
+
+		}
+
+		return activities
 	}
 	
 	Effort loadIssueEffort(ZenhubIssue zenhubIssue) {
