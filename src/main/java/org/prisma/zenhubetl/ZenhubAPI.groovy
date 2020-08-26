@@ -38,7 +38,6 @@ class ZenhubAPI extends AbstractAPI {
 		callExternalAPI(url, ZenhubEpic.class)
 	}
 	
-	
 	public ZenhubDependencies getZenhubDependencies(String repoId) {
 		def url = "${zenhubapi}/p1/repositories/${repoId}/dependencies${appendAccessToken()}"
 		callExternalAPI(url, ZenhubDependencies.class)
