@@ -17,6 +17,7 @@ import org.prisma.zenhubetl.dto.ZenhubConfig
 import org.prisma.zenhubetl.dto.ZenhubDependencies
 import org.prisma.zenhubetl.dto.ZenhubEpic
 import org.prisma.zenhubetl.dto.ZenhubIssue
+import org.prisma.zenhubetl.dto.ZenhubMilestoneStartDate
 import org.prisma.zenhubetl.mapper.GithubIssueMapper
 
 class Zenhub2Project {
@@ -80,7 +81,8 @@ class Zenhub2Project {
 		}
 		
 		milestones.each {
-			project.iterations << githubMapper.githubMilestoneToIteration(it)
+			ZenhubMilestoneStartDate zenhubMilestoneStartDate = zenhubAPI.getZenhubMilestoneStartDate(zenhubConfig.zenhubRepoId, it.number)
+			project.iterations << githubMapper.githubMilestoneToIteration(it, zenhubMilestoneStartDate)
 		}
 	}
 	

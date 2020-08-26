@@ -12,6 +12,7 @@ import org.prisma.zenhubetl.dto.GithubIssue
 import org.prisma.zenhubetl.dto.GithubLabel
 import org.prisma.zenhubetl.dto.GithubMilestone
 import org.prisma.zenhubetl.dto.ZenhubIssue
+import org.prisma.zenhubetl.dto.ZenhubMilestoneStartDate
 
 class GithubIssueMapper {
 	
@@ -103,7 +104,7 @@ class GithubIssueMapper {
 		new Effort(estimated: zenhubIssue.estimate?.value)
 	}
 	
-	Iteration githubMilestoneToIteration(GithubMilestone milestone) {
+	Iteration githubMilestoneToIteration(GithubMilestone milestone, ZenhubMilestoneStartDate zenhubMilestoneStartDate) {
 		Iteration iteration = new Iteration()
 		
 		iteration.id = milestone.id
@@ -111,8 +112,16 @@ class GithubIssueMapper {
 		iteration.name = milestone.title
 		iteration.description = milestone.description
 		iteration.status = milestone.state
+		if (zenhubMilestoneStartDate?.start_date) {
+			iteration.startDate = Date.parse("yyyy-MM-dd'T'HH:mm:sss", zenhubMilestoneStartDate.start_date.replaceAll("Z", ""))
+		}
+
+		if (milestone.due_on) {
+			iteration.finishDate = Date.parse("yyyy-MM-dd'T'HH:mm:ss", milestone.due_on.replaceAll("Z", ""))
+		}
 		
 		return iteration
 	}
+
 
 }

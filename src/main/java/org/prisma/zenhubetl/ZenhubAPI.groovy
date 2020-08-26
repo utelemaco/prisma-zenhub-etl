@@ -4,6 +4,7 @@ import org.prisma.zenhubetl.dto.ZenhubBoard
 import org.prisma.zenhubetl.dto.ZenhubDependencies
 import org.prisma.zenhubetl.dto.ZenhubEpic
 import org.prisma.zenhubetl.dto.ZenhubIssue
+import org.prisma.zenhubetl.dto.ZenhubMilestoneStartDate
 
 class ZenhubAPI extends AbstractAPI {
 	
@@ -41,5 +42,10 @@ class ZenhubAPI extends AbstractAPI {
 	public ZenhubDependencies getZenhubDependencies(String repoId) {
 		def url = "${zenhubapi}/p1/repositories/${repoId}/dependencies${appendAccessToken()}"
 		callExternalAPI(url, ZenhubDependencies.class)
+	}
+
+	public ZenhubMilestoneStartDate getZenhubMilestoneStartDate(String repoId, String milestoneNumber) {
+		def url = "${zenhubapi}/p1/repositories/${repoId}/milestones/${milestoneNumber}/start_date${appendAccessToken()}"
+		callExternalAPI(url, ZenhubMilestoneStartDate.class)
 	}
 }
