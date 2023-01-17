@@ -10,16 +10,17 @@ import org.springframework.web.client.RestTemplate
 
 class AbstractAPI {
 	
-	def callExternalAPI(def url, Class responseClass) {
-		return callExternalAPI(url, responseClass, 0);
+	def callExternalAPI(def url, Class responseClass, String accessToken) {
+		return callExternalAPI(url, responseClass, accessToken, 0);
 	}
 
-	def callExternalAPI(def url, Class responseClass, int numberOfAttempts) {
+	def callExternalAPI(def url, Class responseClass, String accessToken, int numberOfAttempts) {
 		println "[${numberOfAttempts}] requesting $url"
 		try {
 			RestTemplate restTemplate = new RestTemplate()
 			HttpHeaders headers = new HttpHeaders();
 			headers.add("Accept", "application/vnd.github.mockingbird-preview");
+			headers.add("Authorization", accessToken);
 
 			HttpEntity<String> httpEntity = new HttpEntity<>("body", headers);
 			//def response = restTemplate.getForEntity(url, responseClass)

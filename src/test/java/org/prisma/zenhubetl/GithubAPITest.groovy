@@ -17,7 +17,7 @@ class GithubAPITest {
 	@Before
 	public void prepareAPI() {
 		String githubAccessToken = System.properties['githubAccessToken']
-		if(githubAccessToken) {
+		if (githubAccessToken) {
 			this.api = new GithubAPI(githubAccessToken)
 		}
 	}
